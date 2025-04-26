@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeProvider';
 import api from '../utils/axios';
 import { FiArrowLeft } from 'react-icons/fi';
 import toast from 'react-hot-toast';
@@ -10,7 +9,6 @@ export default function CreateDiscussion() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { currentUser } = useAuth();
-  const { isDark } = useTheme();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -47,18 +45,24 @@ export default function CreateDiscussion() {
   };
 
   return (
-    <div className={`min-h-screen py-12 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-black text-white py-12 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+      <div className="absolute inset-0 bg-gradient-radial from-blue-500/20 to-transparent"></div>
+      <div className="absolute top-1/4 right-1/4 w-40 h-40 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-2xl animate-float"></div>
+      <div className="absolute bottom-1/3 left-1/4 w-64 h-64 rounded-full bg-gradient-to-r from-indigo-500/10 to-cyan-500/10 blur-3xl animate-float-slow"></div>
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <button
           onClick={() => navigate(-1)}
-          className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-8"
+          className="inline-flex items-center text-blue-400 hover:text-blue-300 mb-8 font-medium tracking-wide"
         >
           <FiArrowLeft className="h-5 w-5 mr-2" />
           Back
         </button>
 
-        <div className={`rounded-xl shadow-sm p-8 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
-          <h1 className={`text-3xl font-bold mb-8 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+        <div className="rounded-xl p-8 bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-blue-500/20">
+          <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 mb-8 tracking-wide">
             Create New Discussion
           </h1>
 
@@ -66,7 +70,7 @@ export default function CreateDiscussion() {
             <div>
               <label
                 htmlFor="title"
-                className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}
+                className="block text-sm font-medium text-gray-300 mb-2 tracking-wide"
               >
                 Title
               </label>
@@ -76,11 +80,7 @@ export default function CreateDiscussion() {
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                className={`w-full px-4 py-2 rounded-lg border ${
-                  isDark 
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent' 
-                    : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                }`}
+                className="block w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 placeholder="Enter discussion title"
               />
             </div>
@@ -88,7 +88,7 @@ export default function CreateDiscussion() {
             <div>
               <label
                 htmlFor="content"
-                className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}
+                className="block text-sm font-medium text-gray-300 mb-2 tracking-wide"
               >
                 Content
               </label>
@@ -98,11 +98,7 @@ export default function CreateDiscussion() {
                 value={formData.content}
                 onChange={handleChange}
                 rows="6"
-                className={`w-full px-4 py-2 rounded-lg border ${
-                  isDark 
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent' 
-                    : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                }`}
+                className="block w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 placeholder="Enter discussion content"
               />
             </div>
@@ -110,7 +106,7 @@ export default function CreateDiscussion() {
             <div>
               <label
                 htmlFor="classId"
-                className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}
+                className="block text-sm font-medium text-gray-300 mb-2 tracking-wide"
               >
                 Class
               </label>
@@ -120,24 +116,20 @@ export default function CreateDiscussion() {
                 name="classId"
                 value={formData.classId}
                 onChange={handleChange}
-                className={`w-full px-4 py-2 rounded-lg border ${
-                  isDark 
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent' 
-                    : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                }`}
+                className="block w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 placeholder="Enter class ID"
-                readOnly={!!searchParams.get('classId')}
+                disabled={!!searchParams.get('classId')}
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-3 px-4 rounded-lg text-white font-semibold ${
+              className={`w-full py-3 px-4 rounded-lg text-white font-semibold bg-gradient-to-r ${
                 loading
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-700'
-              }`}
+                  ? 'from-gray-500 to-gray-600 opacity-75 cursor-not-allowed'
+                  : 'from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'
+              } shadow-lg shadow-blue-500/30 transition-all`}
             >
               {loading ? 'Creating...' : 'Create Discussion'}
             </button>
@@ -146,4 +138,4 @@ export default function CreateDiscussion() {
       </div>
     </div>
   );
-} 
+}

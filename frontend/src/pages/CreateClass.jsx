@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeProvider';
 import api from '../utils/axios';
 import toast from 'react-hot-toast';
 
-export default function CreateClass() {
+export default function FuturisticCreateClass() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const { isDark } = useTheme();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -58,24 +56,34 @@ export default function CreateClass() {
 
   if (!currentUser || currentUser.role !== 'mentor') {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Access Denied</h1>
-          <p className="text-gray-600 dark:text-gray-300">Only mentors can create classes.</p>
+      <div className="min-h-screen bg-black flex items-center justify-center relative">
+        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+        <div className="absolute inset-0 bg-gradient-radial from-blue-500/20 to-transparent"></div>
+        <div className="text-center relative z-10">
+          <h1 className="text-2xl font-bold text-white mb-4 tracking-wide">Access Denied</h1>
+          <p className="text-gray-300">Only mentors can create classes.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen py-12">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className={`card ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Create New Class</h1>
+    <div className="min-h-screen bg-black text-white py-12 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+      <div className="absolute inset-0 bg-gradient-radial from-blue-500/20 to-transparent"></div>
+      <div className="absolute top-1/4 right-1/4 w-40 h-40 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-2xl animate-float"></div>
+      <div className="absolute bottom-1/3 left-1/4 w-64 h-64 rounded-full bg-gradient-to-r from-indigo-500/10 to-cyan-500/10 blur-3xl animate-float-slow"></div>
+
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-blue-500/20">
+          <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 mb-8 tracking-wide">
+            Create New Class
+          </h1>
           
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="title" className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              <label htmlFor="title" className="block text-sm font-medium text-gray-300 mb-1 tracking-wide">
                 Class Title *
               </label>
               <input
@@ -84,13 +92,13 @@ export default function CreateClass() {
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                className={`input w-full ${isDark ? 'bg-gray-700 text-white border-gray-600' : ''}`}
+                className="block w-full px-3 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="description" className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-1 tracking-wide">
                 Description *
               </label>
               <textarea
@@ -98,13 +106,13 @@ export default function CreateClass() {
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                className={`input w-full min-h-[100px] ${isDark ? 'bg-gray-700 text-white border-gray-600' : ''}`}
+                className="block w-full px-3 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all min-h-[100px]"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="category" className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-300 mb-1 tracking-wide">
                 Category *
               </label>
               <select
@@ -112,7 +120,7 @@ export default function CreateClass() {
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className={`input w-full ${isDark ? 'bg-gray-700 text-white border-gray-600' : ''}`}
+                className="block w-full px-3 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 required
               >
                 <option value="">Select a category</option>
@@ -126,7 +134,7 @@ export default function CreateClass() {
             </div>
 
             <div>
-              <label htmlFor="contentType" className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              <label htmlFor="contentType" className="block text-sm font-medium text-gray-300 mb-1 tracking-wide">
                 Content Type *
               </label>
               <select
@@ -134,7 +142,7 @@ export default function CreateClass() {
                 name="contentType"
                 value={formData.contentType}
                 onChange={handleChange}
-                className={`input w-full ${isDark ? 'bg-gray-700 text-white border-gray-600' : ''}`}
+                className="block w-full px-3 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 required
               >
                 <option value="live">Live Sessions</option>
@@ -145,7 +153,7 @@ export default function CreateClass() {
 
             {formData.contentType !== 'live' && (
               <div>
-                <label htmlFor="contentUrl" className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                <label htmlFor="contentUrl" className="block text-sm font-medium text-gray-300 mb-1 tracking-wide">
                   Content URL *
                 </label>
                 <input
@@ -154,7 +162,7 @@ export default function CreateClass() {
                   name="contentUrl"
                   value={formData.contentUrl}
                   onChange={handleChange}
-                  className={`input w-full ${isDark ? 'bg-gray-700 text-white border-gray-600' : ''}`}
+                  className="block w-full px-3 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                   required
                   placeholder="https://example.com/content"
                 />
@@ -162,7 +170,7 @@ export default function CreateClass() {
             )}
 
             <div>
-              <label htmlFor="price" className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              <label htmlFor="price" className="block text-sm font-medium text-gray-300 mb-1 tracking-wide">
                 Price
               </label>
               <input
@@ -171,7 +179,7 @@ export default function CreateClass() {
                 name="price"
                 value={formData.price}
                 onChange={handleChange}
-                className={`input w-full ${isDark ? 'bg-gray-700 text-white border-gray-600' : ''}`}
+                className="block w-full px-3 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 min="0"
                 step="0.01"
               />
@@ -184,15 +192,15 @@ export default function CreateClass() {
                 name="isPaid"
                 checked={formData.isPaid}
                 onChange={handleChange}
-                className={`h-4 w-4 text-primary ${isDark ? 'bg-gray-700 border-gray-600' : ''}`}
+                className="h-4 w-4 text-blue-500 focus:ring-blue-500 border-gray-300 rounded bg-white/10"
               />
-              <label htmlFor="isPaid" className={`ml-2 block text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              <label htmlFor="isPaid" className="ml-2 block text-sm text-gray-300 tracking-wide">
                 This is a paid class
               </label>
             </div>
 
             <div>
-              <label htmlFor="schedule" className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              <label htmlFor="schedule" className="block text-sm font-medium text-gray-300 mb-1 tracking-wide">
                 Schedule
               </label>
               <input
@@ -201,13 +209,13 @@ export default function CreateClass() {
                 name="schedule"
                 value={formData.schedule}
                 onChange={handleChange}
-                className={`input w-full ${isDark ? 'bg-gray-700 text-white border-gray-600' : ''}`}
+                className="block w-full px-3 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 placeholder="e.g., Every Monday and Wednesday, 6-8 PM"
               />
             </div>
 
             <div>
-              <label htmlFor="maxStudents" className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              <label htmlFor="maxStudents" className="block text-sm font-medium text-gray-300 mb-1 tracking-wide">
                 Maximum Students
               </label>
               <input
@@ -216,13 +224,13 @@ export default function CreateClass() {
                 name="maxStudents"
                 value={formData.maxStudents}
                 onChange={handleChange}
-                className={`input w-full ${isDark ? 'bg-gray-700 text-white border-gray-600' : ''}`}
+                className="block w-full px-3 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 min="1"
               />
             </div>
 
             <div>
-              <label htmlFor="prerequisites" className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              <label htmlFor="prerequisites" className="block text-sm font-medium text-gray-300 mb-1 tracking-wide">
                 Prerequisites
               </label>
               <textarea
@@ -230,13 +238,13 @@ export default function CreateClass() {
                 name="prerequisites"
                 value={formData.prerequisites}
                 onChange={handleChange}
-                className={`input w-full min-h-[100px] ${isDark ? 'bg-gray-700 text-white border-gray-600' : ''}`}
+                className="block w-full px-3 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all min-h-[100px]"
                 placeholder="List any prerequisites or recommended knowledge"
               />
             </div>
 
             <div>
-              <label htmlFor="materials" className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              <label htmlFor="materials" className="block text-sm font-medium text-gray-300 mb-1 tracking-wide">
                 Required Materials
               </label>
               <textarea
@@ -244,13 +252,13 @@ export default function CreateClass() {
                 name="materials"
                 value={formData.materials}
                 onChange={handleChange}
-                className={`input w-full min-h-[100px] ${isDark ? 'bg-gray-700 text-white border-gray-600' : ''}`}
+                className="block w-full px-3 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all min-h-[100px]"
                 placeholder="List any required materials or resources"
               />
             </div>
 
             <div>
-              <label htmlFor="tags" className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              <label htmlFor="tags" className="block text-sm font-medium text-gray-300 mb-1 tracking-wide">
                 Tags
               </label>
               <input
@@ -259,7 +267,7 @@ export default function CreateClass() {
                 name="tags"
                 value={formData.tags}
                 onChange={handleChange}
-                className={`input w-full ${isDark ? 'bg-gray-700 text-white border-gray-600' : ''}`}
+                className="block w-full px-3 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 placeholder="Enter tags separated by commas"
               />
             </div>
@@ -268,14 +276,14 @@ export default function CreateClass() {
               <button
                 type="button"
                 onClick={() => navigate('/classes')}
-                className={`btn btn-outline ${isDark ? 'text-white border-white hover:bg-gray-700' : ''}`}
+                className="px-6 py-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 text-white font-medium tracking-wide transition-all"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className={`btn btn-primary ${isDark ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+                className={`px-6 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium tracking-wide shadow-lg shadow-blue-500/30 transition-all ${loading ? 'opacity-75 cursor-not-allowed' : ''}`}
               >
                 {loading ? 'Creating...' : 'Create Class'}
               </button>
@@ -285,4 +293,4 @@ export default function CreateClass() {
       </div>
     </div>
   );
-} 
+}

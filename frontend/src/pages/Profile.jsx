@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { FiUser, FiMail, FiBook, FiEdit, FiMessageSquare, FiArrowRight } from 'react-icons/fi';
-import { useTheme } from '../context/ThemeProvider';
 import { Link } from 'react-router-dom';
 import api from '../utils/axios';
 import toast from 'react-hot-toast';
 
-export default function Profile() {
+export default function FuturisticProfile() {
   const { currentUser, updateProfile } = useAuth();
-  const { isDark } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: currentUser?.name || '',
@@ -48,12 +46,10 @@ export default function Profile() {
 
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-background py-12">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="card">
-            <p className="text-center text-foreground">Loading profile...</p>
-          </div>
-        </div>
+      <div className="min-h-screen bg-black flex items-center justify-center relative">
+        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+        <div className="absolute inset-0 bg-gradient-radial from-blue-500/20 to-transparent"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400"></div>
       </div>
     );
   }
@@ -82,20 +78,23 @@ export default function Profile() {
   };
 
   return (
-    <div className={`min-h-screen py-12 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className={`rounded-xl shadow-sm p-8 mb-8 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
+    <div className="min-h-screen bg-black text-white py-12 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+      <div className="absolute inset-0 bg-gradient-radial from-blue-500/20 to-transparent"></div>
+      <div className="absolute top-1/4 right-1/4 w-40 h-40 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-2xl animate-float"></div>
+      <div className="absolute bottom-1/3 left-1/4 w-64 h-64 rounded-full bg-gradient-to-r from-indigo-500/10 to-cyan-500/10 blur-3xl animate-float-slow"></div>
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Profile Section */}
+        <div className="rounded-xl p-8 mb-8 bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-blue-500/20">
           <div className="flex justify-between items-start mb-8">
-            <h1 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Profile</h1>
+            <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 tracking-wide">Profile</h1>
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className={`px-4 py-2 rounded-lg border flex items-center ${
-                isDark 
-                  ? 'text-white border-white hover:bg-gray-700' 
-                  : 'border-gray-300 hover:bg-gray-50'
-              }`}
+              className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium tracking-wide shadow-lg shadow-blue-500/30 transition-all flex items-center"
             >
-              <FiEdit className="mr-2" />
+              <FiEdit className="mr-2 h-5 w-5" />
               {isEditing ? 'Cancel' : 'Edit Profile'}
             </button>
           </div>
@@ -106,7 +105,7 @@ export default function Profile() {
               <img
                 src={currentUser.profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name)}&background=random`}
                 alt={currentUser.name}
-                className="w-32 h-32 rounded-full object-cover"
+                className="w-32 h-32 rounded-full border border-white/20 object-cover"
               />
             </div>
 
@@ -115,7 +114,7 @@ export default function Profile() {
               {isEditing ? (
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <label htmlFor="name" className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2 tracking-wide">
                       Name
                     </label>
                     <input
@@ -124,17 +123,13 @@ export default function Profile() {
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      className={`w-full px-4 py-2 rounded-lg border ${
-                        isDark 
-                          ? 'bg-gray-700 text-white border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent' 
-                          : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                      }`}
+                      className="block w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                       required
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="email" className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2 tracking-wide">
                       Email
                     </label>
                     <input
@@ -143,17 +138,13 @@ export default function Profile() {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className={`w-full px-4 py-2 rounded-lg border ${
-                        isDark 
-                          ? 'bg-gray-700 text-white border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent' 
-                          : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                      }`}
+                      className="block w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                       required
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="profilePicture" className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label htmlFor="profilePicture" className="block text-sm font-medium text-gray-300 mb-2 tracking-wide">
                       Profile Picture URL
                     </label>
                     <input
@@ -162,17 +153,13 @@ export default function Profile() {
                       name="profilePicture"
                       value={formData.profilePicture}
                       onChange={handleChange}
-                      className={`w-full px-4 py-2 rounded-lg border ${
-                        isDark 
-                          ? 'bg-gray-700 text-white border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent' 
-                          : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                      }`}
+                      className="block w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                       placeholder="https://example.com/image.jpg"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="bio" className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label htmlFor="bio" className="block text-sm font-medium text-gray-300 mb-2 tracking-wide">
                       Bio
                     </label>
                     <textarea
@@ -180,11 +167,7 @@ export default function Profile() {
                       name="bio"
                       value={formData.bio}
                       onChange={handleChange}
-                      className={`w-full px-4 py-2 rounded-lg border min-h-[100px] ${
-                        isDark 
-                          ? 'bg-gray-700 text-white border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent' 
-                          : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                      }`}
+                      className="block w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all min-h-[100px]"
                       placeholder="Tell us about yourself..."
                     />
                   </div>
@@ -192,11 +175,11 @@ export default function Profile() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className={`w-full py-3 px-4 rounded-lg text-white font-semibold ${
+                    className={`w-full py-3 px-4 rounded-lg text-white font-semibold bg-gradient-to-r ${
                       loading
-                        ? 'bg-gray-400 cursor-not-allowed'
-                        : 'bg-blue-600 hover:bg-blue-700'
-                    }`}
+                        ? 'from-gray-500 to-gray-600 opacity-75 cursor-not-allowed'
+                        : 'from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'
+                    } shadow-lg shadow-blue-500/30 transition-all`}
                   >
                     {loading ? 'Saving...' : 'Save Changes'}
                   </button>
@@ -204,24 +187,24 @@ export default function Profile() {
               ) : (
                 <div className="space-y-4">
                   <div>
-                    <h3 className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Name</h3>
-                    <p className={`text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>{currentUser.name}</p>
+                    <h3 className="text-sm font-medium text-gray-300 tracking-wide">Name</h3>
+                    <p className="text-lg text-white">{currentUser.name}</p>
                   </div>
 
                   <div>
-                    <h3 className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Email</h3>
-                    <p className={`text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>{currentUser.email}</p>
+                    <h3 className="text-sm font-medium text-gray-300 tracking-wide">Email</h3>
+                    <p className="text-lg text-white">{currentUser.email}</p>
                   </div>
 
                   <div>
-                    <h3 className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Role</h3>
-                    <p className={`text-lg capitalize ${isDark ? 'text-white' : 'text-gray-900'}`}>{currentUser.role}</p>
+                    <h3 className="text-sm font-medium text-gray-300 tracking-wide">Role</h3>
+                    <p className="text-lg capitalize text-white">{currentUser.role}</p>
                   </div>
 
                   {currentUser.bio && (
                     <div>
-                      <h3 className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Bio</h3>
-                      <p className={`text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>{currentUser.bio}</p>
+                      <h3 className="text-sm font-medium text-gray-300 tracking-wide">Bio</h3>
+                      <p className="text-lg text-white">{currentUser.bio}</p>
                     </div>
                   )}
                 </div>
@@ -232,40 +215,40 @@ export default function Profile() {
 
         {/* Stats Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className={`rounded-xl shadow-sm p-6 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
+          <div className="rounded-xl p-6 bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-blue-500/20">
             <div className="flex items-center">
-              <div className={`p-3 rounded-full ${isDark ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-100 text-blue-600'}`}>
+              <div className="p-3 rounded-full bg-blue-500/20 text-blue-400">
                 <FiBook className="h-6 w-6" />
               </div>
               <div className="ml-4">
-                <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Classes</p>
-                <p className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                <p className="text-sm font-medium text-gray-300 tracking-wide">Classes</p>
+                <p className="text-2xl font-semibold text-white">
                   {currentUser.role === 'mentor' ? createdClasses.length : enrolledClasses.length}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className={`rounded-xl shadow-sm p-6 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
+          <div className="rounded-xl p-6 bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-blue-500/20">
             <div className="flex items-center">
-              <div className={`p-3 rounded-full ${isDark ? 'bg-green-900/30 text-green-400' : 'bg-green-100 text-green-600'}`}>
+              <div className="p-3 rounded-full bg-green-500/20 text-green-400">
                 <FiMessageSquare className="h-6 w-6" />
               </div>
               <div className="ml-4">
-                <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Discussions</p>
-                <p className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Started</p>
+                <p className="text-sm font-medium text-gray-300 tracking-wide">Discussions</p>
+                <p className="text-2xl font-semibold text-white">Started</p>
               </div>
             </div>
           </div>
 
-          <div className={`rounded-xl shadow-sm p-6 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
+          <div className="rounded-xl p-6 bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-blue-500/20">
             <div className="flex items-center">
-              <div className={`p-3 rounded-full ${isDark ? 'bg-purple-900/30 text-purple-400' : 'bg-purple-100 text-purple-600'}`}>
+              <div className="p-3 rounded-full bg-purple-500/20 text-purple-400">
                 <FiUser className="h-6 w-6" />
               </div>
               <div className="ml-4">
-                <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Member Since</p>
-                <p className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                <p className="text-sm font-medium text-gray-300 tracking-wide">Member Since</p>
+                <p className="text-2xl font-semibold text-white">
                   {new Date(currentUser.createdAt).toLocaleDateString()}
                 </p>
               </div>
@@ -275,11 +258,11 @@ export default function Profile() {
 
         {/* Classes Section */}
         {currentUser.role === 'mentor' ? (
-          <div className={`rounded-xl shadow-sm p-8 mb-8 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
-            <h2 className={`text-2xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>Created Classes</h2>
+          <div className="rounded-xl p-8 mb-8 bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-blue-500/20">
+            <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 mb-6 tracking-wide">Created Classes</h2>
             {loadingClasses ? (
               <div className="flex justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
               </div>
             ) : createdClasses.length > 0 ? (
               <div className="space-y-4">
@@ -287,32 +270,28 @@ export default function Profile() {
                   <Link
                     key={classItem._id}
                     to={`/classes/${classItem._id}`}
-                    className={`block p-4 rounded-lg transition-colors ${
-                      isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-50 hover:bg-gray-100'
-                    }`}
+                    className="block p-4 rounded-lg bg-white/10 hover:bg-white/20 transition-all"
                   >
                     <div className="flex justify-between items-center">
                       <div>
-                        <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{classItem.title}</h3>
-                        <p className={`text-sm mt-1 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{classItem.description}</p>
+                        <h3 className="font-semibold text-white tracking-wide">{classItem.title}</h3>
+                        <p className="text-sm text-gray-300 mt-1">{classItem.description}</p>
                       </div>
-                      <FiArrowRight className={`h-5 w-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                      <FiArrowRight className="h-5 w-5 text-gray-400" />
                     </div>
                   </Link>
                 ))}
               </div>
             ) : (
-              <p className={`text-center ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                You haven't created any classes yet.
-              </p>
+              <p className="text-center text-gray-300">You haven't created any classes yet.</p>
             )}
           </div>
         ) : (
-          <div className={`rounded-xl shadow-sm p-8 mb-8 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
-            <h2 className={`text-2xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>Enrolled Classes</h2>
+          <div className="rounded-xl p-8 mb-8 bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-blue-500/20">
+            <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 mb-6 tracking-wide">Enrolled Classes</h2>
             {loadingClasses ? (
               <div className="flex justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
               </div>
             ) : enrolledClasses.length > 0 ? (
               <div className="space-y-4">
@@ -320,28 +299,24 @@ export default function Profile() {
                   <Link
                     key={classItem._id}
                     to={`/classes/${classItem._id}`}
-                    className={`block p-4 rounded-lg transition-colors ${
-                      isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-50 hover:bg-gray-100'
-                    }`}
+                    className="block p-4 rounded-lg bg-white/10 hover:bg-white/20 transition-all"
                   >
                     <div className="flex justify-between items-center">
                       <div>
-                        <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{classItem.title}</h3>
-                        <p className={`text-sm mt-1 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{classItem.description}</p>
+                        <h3 className="font-semibold text-white tracking-wide">{classItem.title}</h3>
+                        <p className="text-sm text-gray-300 mt-1">{classItem.description}</p>
                       </div>
-                      <FiArrowRight className={`h-5 w-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                      <FiArrowRight className="h-5 w-5 text-gray-400" />
                     </div>
                   </Link>
                 ))}
               </div>
             ) : (
-              <p className={`text-center ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                You haven't enrolled in any classes yet.
-              </p>
+              <p className="text-center text-gray-300">You haven't enrolled in any classes yet.</p>
             )}
           </div>
         )}
       </div>
     </div>
   );
-} 
+}

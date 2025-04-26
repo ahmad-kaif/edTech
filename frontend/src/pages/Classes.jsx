@@ -3,12 +3,10 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/axios';
 import { FiSearch, FiFilter, FiBook, FiUsers, FiClock } from 'react-icons/fi';
-import { useTheme } from '../context/ThemeProvider';
 import toast from 'react-hot-toast';
 
-export default function Classes() {
+export default function FuturisticClasses() {
   const { currentUser } = useAuth();
-  const { isDark } = useTheme();
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -43,23 +41,33 @@ export default function Classes() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="min-h-screen bg-black flex items-center justify-center relative">
+        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+        <div className="absolute inset-0 bg-gradient-radial from-blue-500/20 to-transparent"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-black text-white py-12 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+      <div className="absolute inset-0 bg-gradient-radial from-blue-500/20 to-transparent"></div>
+      <div className="absolute top-1/4 right-1/4 w-40 h-40 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-2xl animate-float"></div>
+      <div className="absolute bottom-1/3 left-1/4 w-64 h-64 rounded-full bg-gradient-to-r from-indigo-500/10 to-cyan-500/10 blur-3xl animate-float-slow"></div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Classes</h1>
+          <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 tracking-wide">
+            Classes
+          </h1>
           {currentUser?.role === 'mentor' && (
             <Link
               to="/classes/create"
-              className="btn btn-primary flex items-center"
+              className="flex items-center px-6 py-3 rounded-lg bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white font-medium tracking-wide shadow-lg shadow-green-500/30 transition-all"
             >
-              <FiBook className="mr-2" />
+              <FiBook className="mr-2 h-5 w-5" />
               Create Class
             </Link>
           )}
@@ -76,7 +84,7 @@ export default function Classes() {
               placeholder="Search classes..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="input pl-10 w-full dark:bg-gray-800 dark:text-white dark:border-gray-700"
+              className="block w-full pl-10 pr-3 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             />
           </div>
           <div className="relative">
@@ -86,7 +94,7 @@ export default function Classes() {
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="input pl-10 dark:bg-gray-800 dark:text-white dark:border-gray-700"
+              className="block w-full pl-10 pr-3 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             >
               <option value="all">All Classes</option>
               <option value="enrolled">Enrolled Classes</option>
@@ -103,17 +111,17 @@ export default function Classes() {
             <Link
               key={cls._id}
               to={`/classes/${cls._id}`}
-              className="card hover:shadow-lg transition-shadow dark:bg-gray-800 dark:text-white dark:border-gray-700"
+              className="p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all shadow-lg shadow-blue-500/20"
             >
-              <h3 className="text-xl font-semibold mb-2">{cls.title}</h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">{cls.description}</p>
-              <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+              <h3 className="text-xl font-semibold text-white mb-2 tracking-wide">{cls.title}</h3>
+              <p className="text-gray-300 mb-4 line-clamp-2">{cls.description}</p>
+              <div className="flex items-center justify-between text-sm text-gray-400">
                 <div className="flex items-center">
-                  <FiUsers className="mr-1" />
+                  <FiUsers className="mr-1 h-4 w-4" />
                   <span>{cls.enrolledStudents?.length || 0} students</span>
                 </div>
                 <div className="flex items-center">
-                  <FiClock className="mr-1" />
+                  <FiClock className="mr-1 h-4 w-4" />
                   <span>{new Date(cls.createdAt).toLocaleDateString()}</span>
                 </div>
               </div>
@@ -124,8 +132,8 @@ export default function Classes() {
         {filteredClasses.length === 0 && (
           <div className="text-center py-12">
             <FiBook className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white">No classes found</h3>
-            <p className="text-gray-600 dark:text-gray-300">
+            <h3 className="text-lg font-medium text-white tracking-wide">No classes found</h3>
+            <p className="text-gray-300">
               {searchTerm ? 'Try adjusting your search' : 'Be the first to create a class!'}
             </p>
           </div>
@@ -133,4 +141,4 @@ export default function Classes() {
       </div>
     </div>
   );
-} 
+}

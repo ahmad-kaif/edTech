@@ -4,12 +4,10 @@ import { useAuth } from '../context/AuthContext';
 import api from '../utils/axios';
 import { FiBook, FiUsers, FiMessageSquare, FiPlus, FiCalendar, FiAward } from 'react-icons/fi';
 import { motion } from 'framer-motion';
-import { useTheme } from '../context/ThemeProvider';
 import toast from 'react-hot-toast';
 
-export default function Dashboard() {
+export default function FuturisticDashboard() {
   const { currentUser } = useAuth();
-  const { isDark } = useTheme();
   const [stats, setStats] = useState({
     enrolledClasses: 0,
     createdClasses: 0,
@@ -62,24 +60,33 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-black flex items-center justify-center relative">
+        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+        <div className="absolute inset-0 bg-gradient-radial from-blue-500/20 to-transparent"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400"></div>
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen py-12 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-black text-white py-12 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+      <div className="absolute inset-0 bg-gradient-radial from-blue-500/20 to-transparent"></div>
+      <div className="absolute top-1/4 right-1/4 w-40 h-40 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-2xl animate-float"></div>
+      <div className="absolute bottom-1/3 left-1/4 w-64 h-64 rounded-full bg-gradient-to-r from-indigo-500/10 to-cyan-500/10 blur-3xl animate-float-slow"></div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
           className="mb-8"
         >
-          <h1 className={`text-4xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-            Welcome back {currentUser.role === 'mentor' ? 'mentor' : 'learner'}, {currentUser.name}!
+          <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+            Welcome back {currentUser.role === 'mentor' ? 'Mentor' : 'Learner'}, {currentUser.name}!
           </h1>
-          <p className={`mt-2 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+          <p className="mt-2 text-lg text-gray-300 tracking-wide">
             Here's what's happening with your learning journey
           </p>
         </motion.div>
@@ -87,86 +94,86 @@ export default function Dashboard() {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <motion.div
-            whileHover={{ scale: 1.02 }}
-            className={`p-6 rounded-xl shadow-sm ${isDark ? 'bg-gray-800' : 'bg-white'}`}
+            whileHover={{ scale: 1.05 }}
+            className="p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-blue-500/20"
           >
             <div className="flex items-center">
-              <div className={`p-3 rounded-full ${isDark ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-100 text-blue-600'}`}>
-                <FiBook className="h-6 w-6" />
+              <div className="p-3 rounded-full bg-gradient-to-br from-blue-500 to-purple-500">
+                <FiBook className="h-6 w-6 text-white" />
               </div>
               <div className="ml-4">
-                <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Enrolled Classes</p>
-                <p className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{stats.enrolledClasses}</p>
+                <p className="text-sm font-medium text-gray-300 tracking-wide">Enrolled Classes</p>
+                <p className="text-2xl font-semibold text-white">{stats.enrolledClasses}</p>
               </div>
             </div>
           </motion.div>
 
           {currentUser.role === 'mentor' && (
             <motion.div
-              whileHover={{ scale: 1.02 }}
-              className={`p-6 rounded-xl shadow-sm ${isDark ? 'bg-gray-800' : 'bg-white'}`}
+              whileHover={{ scale: 1.05 }}
+              className="p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-blue-500/20"
             >
               <div className="flex items-center">
-                <div className={`p-3 rounded-full ${isDark ? 'bg-green-900/30 text-green-400' : 'bg-green-100 text-green-600'}`}>
-                  <FiUsers className="h-6 w-6" />
+                <div className="p-3 rounded-full bg-gradient-to-br from-green-500 to-teal-500">
+                  <FiUsers className="h-6 w-6 text-white" />
                 </div>
                 <div className="ml-4">
-                  <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Created Classes</p>
-                  <p className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{stats.createdClasses}</p>
+                  <p className="text-sm font-medium text-gray-300 tracking-wide">Created Classes</p>
+                  <p className="text-2xl font-semibold text-white">{stats.createdClasses}</p>
                 </div>
               </div>
             </motion.div>
           )}
 
           <motion.div
-            whileHover={{ scale: 1.02 }}
-            className={`p-6 rounded-xl shadow-sm ${isDark ? 'bg-gray-800' : 'bg-white'}`}
+            whileHover={{ scale: 1.05 }}
+            className="p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-blue-500/20"
           >
             <div className="flex items-center">
-              <div className={`p-3 rounded-full ${isDark ? 'bg-purple-900/30 text-purple-400' : 'bg-purple-100 text-purple-600'}`}>
-                <FiMessageSquare className="h-6 w-6" />
+              <div className="p-3 rounded-full bg-gradient-to-br from-purple-500 to-pink-500">
+                <FiMessageSquare className="h-6 w-6 text-white" />
               </div>
               <div className="ml-4">
-                <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Discussions</p>
-                <p className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{stats.discussions}</p>
+                <p className="text-sm font-medium text-gray-300 tracking-wide">Discussions</p>
+                <p className="text-2xl font-semibold text-white">{stats.discussions}</p>
               </div>
             </div>
           </motion.div>
 
           <motion.div
-            whileHover={{ scale: 1.02 }}
-            className={`p-6 rounded-xl shadow-sm ${isDark ? 'bg-gray-800' : 'bg-white'}`}
+            whileHover={{ scale: 1.05 }}
+            className="p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-blue-500/20"
           >
             <div className="flex items-center">
-              <div className={`p-3 rounded-full ${isDark ? 'bg-yellow-900/30 text-yellow-400' : 'bg-yellow-100 text-yellow-600'}`}>
-                <FiAward className="h-6 w-6" />
+              <div className="p-3 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500">
+                <FiAward className="h-6 w-6 text-white" />
               </div>
               <div className="ml-4">
-                <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Completed Classes</p>
-                <p className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{stats.completedClasses}</p>
+                <p className="text-sm font-medium text-gray-300 tracking-wide">Completed Classes</p>
+                <p className="text-2xl font-semibold text-white">{stats.completedClasses}</p>
               </div>
             </div>
           </motion.div>
         </div>
 
-        {/* Quick Actions */}
+        {/* Quick Actions and Recent Activity */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           <motion.div
-            whileHover={{ scale: 1.01 }}
-            className={`p-6 rounded-xl shadow-sm ${isDark ? 'bg-gray-800' : 'bg-white'}`}
+            whileHover={{ scale: 1.02 }}
+            className="p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-blue-500/20"
           >
-            <h2 className={`text-xl font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Quick Actions</h2>
+            <h2 className="text-xl font-semibold text-white mb-4 tracking-wide">Quick Actions</h2>
             <div className="space-y-4">
               <Link
                 to="/classes"
-                className={`flex items-center p-3 rounded-lg ${isDark ? 'bg-blue-900/30 text-blue-400 hover:bg-blue-900/50' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'} transition-colors`}
+                className="flex items-center p-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transition-all shadow-md"
               >
                 <FiBook className="h-5 w-5 mr-3" />
                 Browse Classes
               </Link>
               <Link
                 to="/discussions"
-                className={`flex items-center p-3 rounded-lg ${isDark ? 'bg-purple-900/30 text-purple-400 hover:bg-purple-900/50' : 'bg-purple-50 text-purple-600 hover:bg-purple-100'} transition-colors`}
+                className="flex items-center p-3 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white transition-all shadow-md"
               >
                 <FiMessageSquare className="h-5 w-5 mr-3" />
                 View Discussions
@@ -174,7 +181,7 @@ export default function Dashboard() {
               {currentUser.role === 'mentor' && (
                 <Link
                   to="/classes/create"
-                  className={`flex items-center p-3 rounded-lg ${isDark ? 'bg-green-900/30 text-green-400 hover:bg-green-900/50' : 'bg-green-50 text-green-600 hover:bg-green-100'} transition-colors`}
+                  className="flex items-center p-3 rounded-lg bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white transition-all shadow-md"
                 >
                   <FiPlus className="h-5 w-5 mr-3" />
                   Create New Class
@@ -183,30 +190,29 @@ export default function Dashboard() {
             </div>
           </motion.div>
 
-          {/* Recent Activity */}
           <motion.div
-            whileHover={{ scale: 1.01 }}
-            className={`p-6 rounded-xl shadow-sm ${isDark ? 'bg-gray-800' : 'bg-white'}`}
+            whileHover={{ scale: 1.02 }}
+            className="p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-blue-500/20"
           >
-            <h2 className={`text-xl font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Recent Activity</h2>
+            <h2 className="text-xl font-semibold text-white mb-4 tracking-wide">Recent Activity</h2>
             <div className="space-y-4">
               {recentActivity.map((activity, index) => (
                 <div key={index} className="flex items-start space-x-3">
-                  <div className={`p-2 rounded-full ${
+                  <div className={`p-2 rounded-full bg-gradient-to-br ${
                     activity.type === 'enrollment' 
-                      ? isDark ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-100 text-blue-600'
-                      : isDark ? 'bg-purple-900/30 text-purple-400' : 'bg-purple-100 text-purple-600'
+                      ? 'from-blue-500 to-purple-500' 
+                      : 'from-purple-500 to-pink-500'
                   }`}>
-                    {activity.type === 'enrollment' ? <FiBook className="h-4 w-4" /> : <FiMessageSquare className="h-4 w-4" />}
+                    {activity.type === 'enrollment' ? <FiBook className="h-4 w-4 text-white" /> : <FiMessageSquare className="h-4 w-4 text-white" />}
                   </div>
                   <div>
-                    <p className={`text-sm ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                    <p className="text-sm text-white">
                       {activity.type === 'enrollment' 
                         ? `Enrolled in ${activity.data.title}`
                         : `Posted in ${activity.data.title}`
                       }
                     </p>
-                    <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <p className="text-xs text-gray-400">
                       {new Date(activity.date).toLocaleDateString()}
                     </p>
                   </div>
@@ -218,4 +224,4 @@ export default function Dashboard() {
       </div>
     </div>
   );
-} 
+}
