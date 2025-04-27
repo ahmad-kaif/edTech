@@ -10,11 +10,28 @@ export default function CreateDiscussion() {
   const [searchParams] = useSearchParams();
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [classes, setClasses] = useState([]);
   const [formData, setFormData] = useState({
     title: '',
     content: '',
     classId: searchParams.get('classId') || ''
   });
+
+  // Fetch available classes
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        // Get enrolled classes
+        const response = await api.get('/classes/enrolled');
+        setClasses(response.data || []);
+      } catch (error) {
+        console.error('Error fetching classes:', error);
+        toast.error('Failed to load classes');
+      }
+    };
+
+    fetchClasses();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -108,18 +125,23 @@ export default function CreateDiscussion() {
                 htmlFor="classId"
                 className="block text-sm font-medium text-gray-300 mb-2 tracking-wide"
               >
-                Class
+                Select Class
               </label>
-              <input
-                type="text"
+              <select
                 id="classId"
                 name="classId"
                 value={formData.classId}
                 onChange={handleChange}
                 className="block w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                placeholder="Enter class ID"
                 disabled={!!searchParams.get('classId')}
-              />
+              >
+                <option value="">Select a class</option>
+                {classes.map((cls) => (
+                  <option key={cls._id} value={cls._id}>
+                    {cls.title}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <button

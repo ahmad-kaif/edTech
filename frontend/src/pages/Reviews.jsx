@@ -104,7 +104,7 @@ export default function Reviews() {
               <select
                 value={newReview.rating}
                 onChange={(e) => setNewReview({ ...newReview, rating: Number(e.target.value) })}
-                className="block w-full px-3 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                className="select-dark"
               >
                 {[1, 2, 3, 4, 5].map((num) => (
                   <option key={num} value={num}>
@@ -118,7 +118,7 @@ export default function Reviews() {
               <textarea
                 value={newReview.comment}
                 onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
-                className="block w-full px-3 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all min-h-[100px]"
+                className="input-dark"
                 rows="4"
                 placeholder="Share your experience with this class..."
               />

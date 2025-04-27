@@ -24,6 +24,37 @@ router.get('/learners', protect, admin, async (req, res) => {
   }
 });
 
+// Route to request verification
+router.post('/request-verification', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (user.role !== 'mentor') {
+      return res.status(400).json({ message: 'Only mentors can request verification' });
+    }
+
+    if (user.verified) {
+      return res.status(400).json({ message: 'User is already verified' });
+    }
+
+    if (user.verificationRequested) {
+      return res.status(400).json({ message: 'Verification request already pending' });
+    }
+
+    user.verificationRequested = true;
+    user.verificationRequestDate = new Date();
+    await user.save();
+
+    res.status(200).json({ message: 'Verification request submitted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to submit verification request', error: error.message });
+  }
+});
+
 // Route to delete a mentor
 router.delete('/mentor/:id', protect, admin, async (req, res) => {
   const { id } = req.params;

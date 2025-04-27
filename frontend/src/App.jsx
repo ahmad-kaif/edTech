@@ -6,6 +6,7 @@ import PrivateRoute from './components/PrivateRoute';
 import MentorRoute from './components/MentorRoute';
 import AdminRoute from './components/AdminRoute';
 import Layout from './components/layout/Layout';
+import { useEffect } from 'react';
 
 // Pages
 import Home from './pages/Home';
@@ -22,8 +23,13 @@ import Reviews from './pages/Reviews';
 import Profile from './pages/Profile';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import NotFound from './pages/NotFound';
+import Community from './pages/Community';
 
 function App() {
+  useEffect(() => {
+    document.title = 'SkillSphere - Learn • Grow • Excel';
+  }, []);
+
   return (
     <Router>
       <ThemeProvider>
@@ -42,6 +48,7 @@ function App() {
               <Route path="discussions" element={<PrivateRoute><Discussions /></PrivateRoute>} />
               <Route path="discussions/create" element={<PrivateRoute><CreateDiscussion /></PrivateRoute>} />
               <Route path="discussions/:id" element={<PrivateRoute><DiscussionDetails /></PrivateRoute>} />
+              <Route path="community" element={<PrivateRoute><Community /></PrivateRoute>} />
               <Route path="profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
               <Route path="admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
               <Route path="*" element={<NotFound />} />

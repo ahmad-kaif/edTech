@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/axios';
 import { motion } from 'framer-motion';
-import { FiMessageSquare, FiClock, FiUser, FiArrowLeft } from 'react-icons/fi';
+import { FiMessageSquare, FiClock, FiUser, FiArrowLeft, FiAlertTriangle } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useTheme } from '../context/ThemeProvider';
 
@@ -47,18 +47,33 @@ export default function DiscussionDetails() {
       const response = await api.post(`/discussions/${id}/replies`, {
         content: replyContent
       });
-      console.log('Response:', response);
-      setDiscussion(prevDiscussion => ({
-        ...prevDiscussion,
-        replies: [...prevDiscussion.replies, response.data] // assuming the new reply is returned in the response
-      }));
+      
+      // Update the discussion with the new reply
+      setDiscussion(response.data);
       setReplyContent('');
       toast.success('Reply posted successfully');
     } catch (error) {
+      console.error('Error posting reply:', error);
       toast.error(error.response?.data?.message || 'Failed to post reply');
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const FlaggedContentWarning = ({ moderation }) => {
+    if (!moderation?.flagged) return null;
+
+    return (
+      <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-4">
+        <div className="flex items-center text-red-400">
+          <FiAlertTriangle className="h-5 w-5 mr-2" />
+          <span className="font-medium">Flagged Content</span>
+        </div>
+        {moderation.reason && (
+          <p className="mt-2 text-sm text-red-300">{moderation.reason}</p>
+        )}
+      </div>
+    );
   };
 
   if (loading) {
@@ -100,6 +115,9 @@ export default function DiscussionDetails() {
           animate={{ opacity: 1, y: 0 }}
           className={`rounded-xl shadow-sm p-8 mb-8 ${isDark ? 'bg-gray-800' : 'bg-white'}`}
         >
+          {discussion.moderation?.flagged && (
+            <FlaggedContentWarning moderation={discussion.moderation} />
+          )}
           <h1 className={`text-3xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>{discussion.title}</h1>
           <p className={`text-lg mb-6 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{discussion.content}</p>
           <div className={`flex items-center justify-between text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -127,6 +145,9 @@ export default function DiscussionDetails() {
           <div className="space-y-6">
             {discussion.replies?.map((reply) => (
               <div key={reply._id} className={`border-b ${isDark ? 'border-gray-700' : 'border-gray-100'} pb-6 last:border-0`}>
+                {reply.moderation?.flagged && (
+                  <FlaggedContentWarning moderation={reply.moderation} />
+                )}
                 <div className="flex items-start space-x-4">
                   <img
                     src={reply.author.profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(reply.author.name)}&background=random`}

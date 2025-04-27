@@ -1,6 +1,9 @@
 import asyncHandler from 'express-async-handler';
 import DiscussionPost from '../models/discussionPostModel.js';
 import Class from '../models/classModel.js';
+import mongoose from 'mongoose';
+import sentimentAnalyzer from '../services/sentimentAnalysis.js';
+import contentModerator from '../services/contentModeration.js';
 
 
 export const createDiscussionPost = asyncHandler(async (req, res) => {
@@ -27,31 +30,74 @@ export const createDiscussionPost = asyncHandler(async (req, res) => {
     throw new Error('You must be enrolled in the class to participate in discussions');
   }
 
+  // Analyze sentiment of the content
+  const sentiment = await sentimentAnalyzer.analyzeSentiment(content);
+  const moderation = await contentModerator.moderateContent(content, sentiment);
+
   const post = await DiscussionPost.create({
     title,
     content,
     author: req.user._id,
     classId,
+    sentiment,
+    moderation: {
+      flagged: moderation.flagged,
+      reason: moderation.reason,
+      badWordsFound: moderation.badWordsFound
+    }
   });
+
+  // If content is flagged, notify admins
+  if (moderation.flagged) {
+    console.log(`Flagged content detected in post ${post._id}`);
+  }
 
   res.status(201).json(post);
 });
 
 
 export const getDiscussionPosts = asyncHandler(async (req, res) => {
-  const { classId } = req.query;
+  try {
+    const { classId } = req.query;
 
-  let filter = {};
-  if (classId) {
-    filter = { classId };
+    // Get all classes the user is enrolled in or is a mentor of
+    const userClasses = await Class.find({
+      $or: [
+        { enrolledStudents: req.user._id },
+        { mentor: req.user._id }
+      ]
+    });
+
+    // Get the IDs of these classes
+    const userClassIds = userClasses.map(cls => cls._id);
+
+    // If user has no enrolled classes, return empty array
+    if (userClassIds.length === 0) {
+      return res.json([]);
+    }
+
+    // Build the filter
+    let filter = { classId: { $in: userClassIds } };
+    if (classId) {
+      // If a specific classId is provided, only show if user is enrolled
+      const classIdObj = new mongoose.Types.ObjectId(classId);
+      if (!userClassIds.some(id => id.toString() === classIdObj.toString())) {
+        res.status(403);
+        throw new Error('You are not enrolled in this class');
+      }
+      filter = { classId: classIdObj };
+    }
+
+    const posts = await DiscussionPost.find(filter)
+      .populate('author', 'name profilePicture')
+      .populate('classId', 'title')
+      .sort({ createdAt: -1 });
+
+    res.json(posts);
+  } catch (error) {
+    console.error('Error in getDiscussionPosts:', error);
+    res.status(500).json({ message: error.message || 'Failed to fetch discussions' });
   }
-
-  const posts = await DiscussionPost.find(filter)
-    .populate('author', 'name profilePicture') // get author name and profile picture
-    .populate('classId', 'title') // get class title
-    .sort({ createdAt: -1 });
-
-  res.json(posts);
 });
 
 
@@ -94,14 +140,29 @@ export const addReplyToPost = asyncHandler(async (req, res) => {
     throw new Error('You must be enrolled in the class to participate in discussions');
   }
 
-  post.replies.push({
+  // Analyze sentiment and check content
+  const sentiment = await sentimentAnalyzer.analyzeSentiment(content);
+  const moderation = await contentModerator.moderateContent(content, sentiment);
+
+  const reply = {
     content,
     author: req.user._id,
-  });
+    sentiment,
+    moderation: {
+      flagged: moderation.flagged,
+      reason: moderation.reason,
+      badWordsFound: moderation.badWordsFound
+    }
+  };
 
+  post.replies.push(reply);
   await post.save();
 
-  // Return the updated post with populated fields
+  // If content is flagged, notify admins
+  if (moderation.flagged) {
+    console.log(`Flagged content detected in reply to post ${postId}`);
+  }
+
   const updatedPost = await DiscussionPost.findById(postId)
     .populate('author', 'name profilePicture')
     .populate('classId', 'title')
@@ -144,5 +205,38 @@ export const startDiscussion = asyncHandler(async (req, res) => {
   });
 
   res.status(201).json(post);
+});
+
+export const getAllDiscussions = asyncHandler(async (req, res) => {
+  try {
+    const posts = await DiscussionPost.find()
+      .populate('author', 'name profilePicture')
+      .populate('classId', 'title')
+      .populate('replies.author', 'name profilePicture')
+      .sort({ createdAt: -1 });
+
+    res.json({ discussions: posts });
+  } catch (error) {
+    console.error('Error in getAllDiscussions:', error);
+    res.status(500).json({ message: error.message || 'Failed to fetch all discussions' });
+  }
+});
+
+export const deleteDiscussion = asyncHandler(async (req, res) => {
+  const discussion = await DiscussionPost.findById(req.params.id);
+  
+  if (!discussion) {
+    res.status(404);
+    throw new Error('Discussion not found');
+  }
+
+  // Check if user is admin or the author of the discussion
+  if (req.user.role !== 'admin' && discussion.author.toString() !== req.user._id.toString()) {
+    res.status(403);
+    throw new Error('Not authorized to delete this discussion');
+  }
+
+  await discussion.deleteOne();
+  res.json({ message: 'Discussion removed' });
 });
 

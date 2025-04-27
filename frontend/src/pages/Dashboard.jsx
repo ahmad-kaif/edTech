@@ -5,6 +5,7 @@ import api from '../utils/axios';
 import { FiBook, FiUsers, FiMessageSquare, FiPlus, FiCalendar, FiAward } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
+import GeminiChat from '../components/GeminiChat/GeminiChat';
 
 export default function FuturisticDashboard() {
   const { currentUser } = useAuth();
@@ -18,7 +19,25 @@ export default function FuturisticDashboard() {
   const [loading, setLoading] = useState(true);
   const [recentActivity, setRecentActivity] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [verificationStatus, setVerificationStatus] = useState(currentUser?.isVerified || false);
+  const [verificationStatus, setVerificationStatus] = useState('unverified'); // 'unverified', 'pending', 'verified'
+
+  // Function to check verification status
+  const checkVerificationStatus = async () => {
+    try {
+      const response = await api.get('/auth/profile');
+      const updatedUser = response.data;
+      
+      if (updatedUser.verified) {
+        setVerificationStatus('verified');
+      } else if (updatedUser.verificationRequested) {
+        setVerificationStatus('pending');
+      } else {
+        setVerificationStatus('unverified');
+      }
+    } catch (error) {
+      console.error('Error checking verification status:', error);
+    }
+  };
 
   useEffect(() => {
     if (!currentUser) {
@@ -29,13 +48,24 @@ export default function FuturisticDashboard() {
   
     const fetchDashboardData = async () => {
       try {
-        const [classesRes, discussionsRes] = await Promise.all([
+        const [classesRes, discussionsRes, userRes] = await Promise.all([
           api.get('/classes'),
-          api.get('/discussions')
+          api.get('/discussions'),
+          api.get('/auth/profile')
         ]);
   
         const classes = classesRes.data.classes || [];
         const discussions = discussionsRes.data || [];
+        const updatedUser = userRes.data;
+  
+        // Update verification status based on user data
+        if (updatedUser.verified) {
+          setVerificationStatus('verified');
+        } else if (updatedUser.verificationRequested) {
+          setVerificationStatus('pending');
+        } else {
+          setVerificationStatus('unverified');
+        }
   
         const enrolledClasses = classes.filter(c => c.enrolledStudents?.includes(currentUser?._id));
         const createdClasses = classes.filter(c => c.mentor?._id === currentUser?._id);
@@ -64,19 +94,25 @@ export default function FuturisticDashboard() {
     };
   
     fetchDashboardData();
+
+    // Set up periodic verification status check
+    const verificationInterval = setInterval(checkVerificationStatus, 10000); // Check every 10 seconds
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(verificationInterval);
   }, [currentUser]);
 
   const handleVerificationRequest = async () => {
     try {
-      
-      const response = await api.put(`/admin/verify-mentor/${currentUser._id}`);
+      const response = await api.post('/users/request-verification');
       if (response.status === 200) {
-        toast.success('Verification request sent to the admin!');
+        toast.success('Verification request sent to admin!');
         setVerificationStatus('pending');
-        setIsModalOpen(false); // Close the modal after submitting
+        setIsModalOpen(false);
       }
     } catch (error) {
-      toast.error('Failed to send verification request');
+      console.error('Error requesting verification:', error);
+      toast.error(error.response?.data?.message || 'Failed to send verification request');
     }
   };
 
@@ -113,12 +149,39 @@ export default function FuturisticDashboard() {
           transition={{ duration: 1 }}
           className="mb-8"
         >
-          <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-            Welcome back {currentUser.role === 'mentor' ? 'Mentor' : 'Learner'}, {currentUser.name}!
-          </h1>
-          <p className="mt-2 text-lg text-gray-300 tracking-wide">
-            Here's what's happening with your learning journey
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+                Welcome {currentUser.role === 'mentor' ? 'Mentor' : 'Learner'}, {currentUser.name}!
+              </h1>
+              <p className="mt-2 text-lg text-gray-300 tracking-wide">
+                Here's what's happening with your learning journey
+              </p>
+            </div>
+            {currentUser.role === 'mentor' && (
+              <div className="flex items-center">
+                {verificationStatus === 'verified' ? (
+                  <div className="flex items-center px-4 py-2 rounded-lg bg-green-500/20 text-green-400">
+                    <FiAward className="h-5 w-5 mr-2" />
+                    <span>Verified Mentor</span>
+                  </div>
+                ) : verificationStatus === 'pending' ? (
+                  <div className="flex items-center px-4 py-2 rounded-lg bg-yellow-500/20 text-yellow-400">
+                    <FiAward className="h-5 w-5 mr-2" />
+                    <span>Verification Pending</span>
+                  </div>
+                ) : (
+                  <button
+                    onClick={openVerificationModal}
+                    className="flex items-center px-4 py-2 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors"
+                  >
+                    <FiAward className="h-5 w-5 mr-2" />
+                    <span>Request Verification</span>
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </motion.div>
 
         {/* Stats Grid */}
@@ -217,16 +280,6 @@ export default function FuturisticDashboard() {
                   Create New Class
                 </Link>
               )}
-              {/* Verification Request Button */}
-              {currentUser.role === 'mentor' && !verificationStatus && (
-                <button
-                  onClick={openVerificationModal}
-                  className="flex items-center p-3 rounded-lg bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white transition-all shadow-md"
-                >
-                  <FiAward className="h-5 w-5 mr-3" />
-                  Request Verification
-                </button>
-              )}
             </div>
           </motion.div>
 
@@ -255,36 +308,34 @@ export default function FuturisticDashboard() {
           </motion.div>
         </div>
 
-        {/* Modal */}
+        {/* Verification Request Modal */}
         {isModalOpen && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-            onClick={closeVerificationModal}
-          >
-            <div
-              className="bg-white p-6 rounded-lg shadow-lg w-1/3"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h2 className="text-xl font-semibold mb-4">Verification Request</h2>
-              <p className="text-lg mb-4">Are you sure you want to request verification?</p>
-              <div className="flex space-x-4">
-                <button
-                  onClick={handleVerificationRequest}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg"
-                >
-                  Yes
-                </button>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-gray-900 rounded-xl p-8 max-w-md w-full mx-4">
+              <h2 className="text-2xl font-bold mb-4">Request Verification</h2>
+              <p className="text-gray-300 mb-6">
+                By requesting verification, you'll be able to create and manage classes. 
+                Our admin team will review your request and get back to you soon.
+              </p>
+              <div className="flex justify-end space-x-4">
                 <button
                   onClick={closeVerificationModal}
-                  className="px-4 py-2 bg-gray-300 text-black rounded-lg"
+                  className="px-4 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-600"
                 >
-                  No
+                  Cancel
+                </button>
+                <button
+                  onClick={handleVerificationRequest}
+                  className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  Request Verification
                 </button>
               </div>
             </div>
           </div>
         )}
       </div>
+      <GeminiChat />
     </div>
   );
 }

@@ -84,7 +84,7 @@ export default function FuturisticClasses() {
               placeholder="Search classes..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="block w-full pl-10 pr-3 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="input-dark pl-10"
             />
           </div>
           <div className="relative">
@@ -94,7 +94,7 @@ export default function FuturisticClasses() {
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="block w-full pl-10 pr-3 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="select-dark pl-10"
             >
               <option value="all">All Classes</option>
               <option value="enrolled">Enrolled Classes</option>

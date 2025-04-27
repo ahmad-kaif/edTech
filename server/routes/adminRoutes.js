@@ -6,6 +6,7 @@ import {
   getFlaggedReviews,
   deleteFlaggedReview,
   verifyMentor,
+  reviewFlaggedContent,
 } from '../controllers/adminController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 
@@ -21,5 +22,7 @@ router.delete('/flagged-reviews/:id', protect, admin, deleteFlaggedReview);
 
 // Verify Mentor
 router.put('/verify-mentor/:id', protect, admin, verifyMentor);
+
+router.post('/review-content/:id', protect, admin, reviewFlaggedContent);
 
 export default router;

@@ -42,6 +42,35 @@
   .nav-link-active {
     @apply text-primary font-medium;
   }
+  
+  .input-dark {
+    @apply block w-full px-3 py-3 
+    bg-gray-800 
+    border border-gray-600 
+    rounded-lg 
+    text-white 
+    placeholder-gray-400 
+    focus:ring-2 
+    focus:ring-blue-500 
+    focus:border-blue-500 
+    transition-all;
+  }
+
+  .select-dark {
+    @apply block w-full px-3 py-3 
+    bg-gray-800 
+    border border-gray-600 
+    rounded-lg 
+    text-white 
+    focus:ring-2 
+    focus:ring-blue-500 
+    focus:border-blue-500 
+    transition-all;
+  }
+
+  .select-dark option {
+    @apply bg-gray-800 text-white;
+  }
 }
 
 :root {
