@@ -1,9 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import Class from '../models/classModel.js';
 
-// @desc    Create a new class
-// @route   POST /api/classes
-// @access  Private/Mentor
+
 export const createClass = asyncHandler(async (req, res) => {
   const { title, description, category, contentType, contentUrl, price, tags } = req.body;
 
@@ -20,7 +18,7 @@ export const createClass = asyncHandler(async (req, res) => {
   }
 
   // Validate live sessions for verified mentors only
-  if (contentType === 'live' && !req.user.isVerified) {
+  if (contentType === 'live' && !req.user.isVerifiedMentor) {
     res.status(403);
     throw new Error('Only verified mentors can create live sessions');
   }
@@ -271,6 +269,33 @@ export const enrollInClass = async (req, res) => {
     res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
+// check enrollment(yes  or no)
+export const checkEnrollment = async (req, res) => {
+  try {
+    const classData = await Class.findById(req.params.id);
+
+    if (!classData) {
+      return res.status(404).json({ message: 'Class not found' });
+    }
+
+    // Check if user is enrolled
+    const isEnrolled = classData.enrolledStudents?.includes(req.user.id);
+
+    if (!isEnrolled) {
+      return res.status(404).json({ message: 'Not enrolled in this class' });
+    }
+
+    return res.status(200).json({ message: 'User is enrolled in this class' });
+
+  } catch (error) {
+    console.error('Error checking enrollment:', error);
+    if (error.kind === 'ObjectId') {
+      return res.status(404).json({ message: 'Class not found' });
+    }
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
+
 
 // Get enrolled classes for a user
 export const getEnrolledClasses = async (req, res) => {
@@ -331,3 +356,40 @@ export const unenrollFromClass = async (req, res) => {
     res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
+
+
+// Rate a class
+export const rateClass = async (req, res) => {
+  try {
+    const classData = await Class.findById(req.params.id);
+
+    if (!classData) {
+      return res.status(404).json({ message: 'Class not found' });
+    }
+
+    // Ensure user hasn't already rated this class
+    const existingRating = classData.reviews.find(review => review.user.toString() === req.user._id.toString());
+    if (existingRating) {
+      return res.status(400).json({ message: 'You have already rated this class' });
+    }
+
+    // Add the new rating
+    classData.reviews.push({
+      user: req.user._id,
+      rating: req.body.rating,
+      createdAt: new Date(),
+    });
+
+    // Update average rating
+    const averageRating = classData.reviews.reduce((acc, review) => acc + review.rating, 0) / classData.reviews.length;
+    classData.rating = averageRating;
+
+    await classData.save();
+
+    res.status(200).json({ message: 'Rating submitted successfully', averageRating });
+  } catch (error) {
+    console.error('Error rating class:', error);
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
+

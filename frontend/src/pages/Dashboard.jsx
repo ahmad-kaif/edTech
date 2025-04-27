@@ -17,28 +17,36 @@ export default function FuturisticDashboard() {
   });
   const [loading, setLoading] = useState(true);
   const [recentActivity, setRecentActivity] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState(currentUser?.isVerified || false);
 
   useEffect(() => {
+    if (!currentUser) {
+      toast.error('User not authenticated');
+      setLoading(false);
+      return;
+    }
+  
     const fetchDashboardData = async () => {
       try {
         const [classesRes, discussionsRes] = await Promise.all([
           api.get('/classes'),
           api.get('/discussions')
         ]);
-
+  
         const classes = classesRes.data.classes || [];
         const discussions = discussionsRes.data || [];
-
-        const enrolledClasses = classes.filter(c => c.enrolledStudents?.includes(currentUser._id));
-        const createdClasses = classes.filter(c => c.mentor._id === currentUser._id);
-        const userDiscussions = discussions.filter(d => d.author._id === currentUser._id);
-
+  
+        const enrolledClasses = classes.filter(c => c.enrolledStudents?.includes(currentUser?._id));
+        const createdClasses = classes.filter(c => c.mentor?._id === currentUser?._id);
+        const userDiscussions = discussions.filter(d => d.author?._id === currentUser?._id);
+  
         // Combine and sort recent activity
         const activity = [
           ...enrolledClasses.map(c => ({ type: 'enrollment', data: c, date: c.createdAt })),
           ...userDiscussions.map(d => ({ type: 'discussion', data: d, date: d.createdAt }))
         ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
-
+  
         setStats({
           enrolledClasses: enrolledClasses.length,
           createdClasses: createdClasses.length,
@@ -54,9 +62,31 @@ export default function FuturisticDashboard() {
         setLoading(false);
       }
     };
-
+  
     fetchDashboardData();
-  }, [currentUser._id]);
+  }, [currentUser]);
+
+  const handleVerificationRequest = async () => {
+    try {
+      
+      const response = await api.put(`/admin/verify-mentor/${currentUser._id}`);
+      if (response.status === 200) {
+        toast.success('Verification request sent to the admin!');
+        setVerificationStatus('pending');
+        setIsModalOpen(false); // Close the modal after submitting
+      }
+    } catch (error) {
+      toast.error('Failed to send verification request');
+    }
+  };
+
+  const openVerificationModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeVerificationModal = () => {
+    setIsModalOpen(false);
+  };
 
   if (loading) {
     return (
@@ -187,6 +217,16 @@ export default function FuturisticDashboard() {
                   Create New Class
                 </Link>
               )}
+              {/* Verification Request Button */}
+              {currentUser.role === 'mentor' && !verificationStatus && (
+                <button
+                  onClick={openVerificationModal}
+                  className="flex items-center p-3 rounded-lg bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white transition-all shadow-md"
+                >
+                  <FiAward className="h-5 w-5 mr-3" />
+                  Request Verification
+                </button>
+              )}
             </div>
           </motion.div>
 
@@ -203,24 +243,47 @@ export default function FuturisticDashboard() {
                       ? 'from-blue-500 to-purple-500' 
                       : 'from-purple-500 to-pink-500'
                   }`}>
-                    {activity.type === 'enrollment' ? <FiBook className="h-4 w-4 text-white" /> : <FiMessageSquare className="h-4 w-4 text-white" />}
+                    <FiCalendar className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm text-white">
-                      {activity.type === 'enrollment' 
-                        ? `Enrolled in ${activity.data.title}`
-                        : `Posted in ${activity.data.title}`
-                      }
-                    </p>
-                    <p className="text-xs text-gray-400">
-                      {new Date(activity.date).toLocaleDateString()}
-                    </p>
+                    <p className="text-sm font-medium text-gray-300">{activity.type === 'enrollment' ? 'Enrolled in' : 'Participated in'} a class</p>
+                    <p className="text-sm text-gray-500">{new Date(activity.date).toLocaleDateString()}</p>
                   </div>
                 </div>
               ))}
             </div>
           </motion.div>
         </div>
+
+        {/* Modal */}
+        {isModalOpen && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            onClick={closeVerificationModal}
+          >
+            <div
+              className="bg-white p-6 rounded-lg shadow-lg w-1/3"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-xl font-semibold mb-4">Verification Request</h2>
+              <p className="text-lg mb-4">Are you sure you want to request verification?</p>
+              <div className="flex space-x-4">
+                <button
+                  onClick={handleVerificationRequest}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+                >
+                  Yes
+                </button>
+                <button
+                  onClick={closeVerificationModal}
+                  className="px-4 py-2 bg-gray-300 text-black rounded-lg"
+                >
+                  No
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

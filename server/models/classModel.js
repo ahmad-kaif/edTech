@@ -1,77 +1,32 @@
 import mongoose from 'mongoose';
 
-const classSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-    trim: true,
+const reviewSchema = mongoose.Schema(
+  {
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    rating: { type: Number, required: true, min: 1, max: 5 },
+    createdAt: { type: Date, default: Date.now },
   },
-  
-  description: {
-    type: String,
-    required: true,
+  { timestamps: true }
+);
+
+const classSchema = mongoose.Schema(
+  {
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    category: { type: String, required: true },
+    contentType: { type: String, required: true },
+    contentUrl: { type: String },
+    price: { type: Number, default: 0 },
+    isPaid: { type: Boolean, default: false },
+    mentor: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    tags: [{ type: String }],
+    reviews: [reviewSchema],
+    rating: { type: Number, default: 0 },  // Average rating of the class
+    enrolledStudents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    maxStudents: { type: Number, default: 30 },
   },
-
-  category: {
-    type: String,
-    required: true,
-    enum: ['programming', 'design', 'marketing', 'business', 'personal development', 'other'], // you can expand as needed
-  },
-
-  contentType: {
-    type: String,
-    required: true,
-    enum: ['live', 'video', 'uploadable'], // Live sessions, pre-recorded videos, or uploadable content
-  },
-
-  contentUrl: {
-    type: String,
-    required: function () {
-      return this.contentType !== 'live'; // Only required for video/uploadable content
-    },
-  },
-
-  price: {
-    type: Number,
-    default: 0, // Free by default
-  },
-
-  mentor: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-
-  isPaid: {
-    type: Boolean,
-    default: false, // If the class is paid
-  },
-
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-
-  tags: {
-    type: [String], // Keywords for searching classes
-    default: [],
-  },
-
-  enrolledStudents: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }],
-
-  reviews: [
-    {
-      user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-      rating: { type: Number, required: true },
-      comment: { type: String, required: true },
-      createdAt: { type: Date, default: Date.now },
-    }
-  ],
-
-}, { timestamps: true });
+  { timestamps: true }
+);
 
 const Class = mongoose.model('Class', classSchema);
 

@@ -12,6 +12,8 @@ export default function Discussions() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all'); // all, my-posts, my-replies
 
+  
+
   useEffect(() => {
     const fetchDiscussions = async () => {
       try {

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/axios';
-import { FiSearch, FiFilter, FiBook, FiUsers, FiClock } from 'react-icons/fi';
+import { FiSearch, FiFilter, FiBook, FiUsers, FiClock, FiStar } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
 export default function FuturisticClasses() {
@@ -124,6 +124,12 @@ export default function FuturisticClasses() {
                   <FiClock className="mr-1 h-4 w-4" />
                   <span>{new Date(cls.createdAt).toLocaleDateString()}</span>
                 </div>
+              </div>
+              
+              {/* Display the average rating */}
+              <div className="mt-4 text-sm text-gray-400">
+                <FiStar className="inline-block mr-1 text-yellow-400" />
+                <span>{cls.rating ? cls.rating.toFixed(1) : 'No ratings yet'}</span>
               </div>
             </Link>
           ))}

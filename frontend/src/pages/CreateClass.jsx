@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../utils/axios';
 import toast from 'react-hot-toast';
 
-export default function FuturisticCreateClass() {
+export default function CreateClass() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState(false);

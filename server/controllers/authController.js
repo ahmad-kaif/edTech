@@ -59,16 +59,16 @@ export const registerUser = async (req, res) => {
 // Login User
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
-  console.log('Login attempt for:', email);
+  // console.log('Login attempt for:', email);
 
   try {
     const user = await User.findOne({ email });
-    console.log('User found:', user ? 'Yes' : 'No');
+    // console.log('User found:', user ? 'Yes' : 'No');
 
     if (user && (await bcrypt.compare(password, user.password))) {
-      console.log('Password verified successfully');
+      // console.log('Password verified successfully');
       const token = generateToken(user._id);
-      console.log('Token generated');
+      // console.log('Token generated');
 
       // Store token in an HTTP-only cookie
       res.cookie('token', token, {
@@ -174,5 +174,25 @@ export const updateProfile = async (req, res) => {
   } catch (error) {
     console.error('Profile update error:', error);
     res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
+
+
+export const getAllUsers = async (req, res) => {
+  try {
+    // Fetch all users from the database
+    const users = await User.find();
+
+    // Check if there are any users in the database
+    if (!users || users.length === 0) {
+      return res.status(404).json({ message: 'No users found' });
+    }
+
+    // Send the users data as a response
+    return res.status(200).json(users);
+  } catch (error) {
+    // Handle any errors that might occur during the database operation
+    console.error('Error fetching users:', error);
+    return res.status(500).json({ message: 'Server error' });
   }
 };

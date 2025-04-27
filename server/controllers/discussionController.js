@@ -37,9 +37,7 @@ export const createDiscussionPost = asyncHandler(async (req, res) => {
   res.status(201).json(post);
 });
 
-// @desc    Get all discussion posts (optionally by class)
-// @route   GET /api/discussions?classId=xxx
-// @access  Public
+
 export const getDiscussionPosts = asyncHandler(async (req, res) => {
   const { classId } = req.query;
 
@@ -56,9 +54,7 @@ export const getDiscussionPosts = asyncHandler(async (req, res) => {
   res.json(posts);
 });
 
-// @desc    Get a single discussion post by ID
-// @route   GET /api/discussions/:id
-// @access  Public
+
 export const getDiscussionPostById = asyncHandler(async (req, res) => {
   const post = await DiscussionPost.findById(req.params.id)
     .populate('author', 'name profilePicture')
@@ -73,9 +69,7 @@ export const getDiscussionPostById = asyncHandler(async (req, res) => {
   res.json(post);
 });
 
-// @desc    Add a reply to a discussion post
-// @route   POST /api/discussions/:id/replies
-// @access  Private
+
 export const addReplyToPost = asyncHandler(async (req, res) => {
   const { content } = req.body;
   const postId = req.params.id;
@@ -115,3 +109,40 @@ export const addReplyToPost = asyncHandler(async (req, res) => {
 
   res.status(201).json(updatedPost);
 });
+
+export const startDiscussion = asyncHandler(async (req, res) => {
+  const { title, content, classId } = req.body;
+
+  // Validate the required fields
+  if (!title || !content || !classId) {
+    res.status(400);
+    throw new Error('Please provide title, content, and classId');
+  }
+
+  // Check if the class exists
+  const existingClass = await Class.findById(classId);
+  if (!existingClass) {
+    res.status(404);
+    throw new Error('Class not found');
+  }
+
+  // Check if the user is enrolled or a mentor of the class
+  const isEnrolled = existingClass.enrolledStudents.includes(req.user._id);
+  const isMentor = existingClass.mentor.toString() === req.user._id.toString();
+
+  if (!isEnrolled && !isMentor) {
+    res.status(403);
+    throw new Error('You must be enrolled in the class or a mentor to start a discussion');
+  }
+
+  // Create a new discussion post
+  const post = await DiscussionPost.create({
+    title,
+    content,
+    author: req.user._id,
+    classId,
+  });
+
+  res.status(201).json(post);
+});
+

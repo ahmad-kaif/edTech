@@ -10,6 +10,7 @@ const discussionPostSchema = new Schema(
       type: String,
       required: true,
     },
+    
     author: {
       type: Types.ObjectId,
       ref: 'User',

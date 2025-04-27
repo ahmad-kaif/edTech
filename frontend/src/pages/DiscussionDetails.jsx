@@ -15,12 +15,18 @@ export default function DiscussionDetails() {
   const [loading, setLoading] = useState(true);
   const [replyContent, setReplyContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [isEnrolled, setIsEnrolled] = useState(false);
 
   useEffect(() => {
     const fetchDiscussion = async () => {
       try {
         const response = await api.get(`/discussions/${id}`);
         setDiscussion(response.data);
+
+        // Check if the user is enrolled in the class
+        const enrollmentResponse = await api.get(`/classes/${response.data.classId._id}/enrollment`);
+        // Ensure the response has the expected property (you might need to adjust based on the actual API response)
+        setIsEnrolled(enrollmentResponse.data.isEnrolled);
       } catch (error) {
         console.error('Error fetching discussion:', error);
         toast.error('Failed to load discussion');
@@ -41,7 +47,11 @@ export default function DiscussionDetails() {
       const response = await api.post(`/discussions/${id}/replies`, {
         content: replyContent
       });
-      setDiscussion(response.data);
+      console.log('Response:', response);
+      setDiscussion(prevDiscussion => ({
+        ...prevDiscussion,
+        replies: [...prevDiscussion.replies, response.data] // assuming the new reply is returned in the response
+      }));
       setReplyContent('');
       toast.success('Reply posted successfully');
     } catch (error) {
@@ -138,8 +148,8 @@ export default function DiscussionDetails() {
           </div>
         </motion.div>
 
-        {/* Reply Form */}
-        {currentUser && (
+        {/* Reply Form (Only visible if the user is enrolled) */}
+        {currentUser && isEnrolled && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -175,7 +185,14 @@ export default function DiscussionDetails() {
             </form>
           </motion.div>
         )}
+        
+        {/* If user is not enrolled */}
+        {!isEnrolled && currentUser && (
+          <div className="text-center mt-8">
+            <p className="text-gray-500">You must be enrolled in the class to post a reply.</p>
+          </div>
+        )}
       </div>
     </div>
   );
-} 
+}

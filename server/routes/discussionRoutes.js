@@ -1,5 +1,5 @@
 import express from 'express';
-import { createDiscussionPost, getDiscussionPosts, getDiscussionPostById, addReplyToPost } from '../controllers/discussionController.js';
+import { createDiscussionPost, getDiscussionPosts, getDiscussionPostById, addReplyToPost, startDiscussion } from '../controllers/discussionController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -15,5 +15,7 @@ router.get('/:id', getDiscussionPostById);
 
 // Add a reply to a specific post (Private)
 router.post('/:id/replies', protect, addReplyToPost);
+
+router.post('/start', protect, startDiscussion)
 
 export default router;
