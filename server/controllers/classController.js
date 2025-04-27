@@ -393,3 +393,44 @@ export const rateClass = async (req, res) => {
   }
 };
 
+
+// controllers/classController.js
+import { RoomServiceClient } from 'livekit-server-sdk';
+
+const livekitHost = process.env.LIVEKIT_HOST || 'wss://play-um2ffagk.livekit.cloud';
+const apiKey = process.env.LIVEKIT_API_KEY || 'your_api_key';
+const apiSecret = process.env.LIVEKIT_API_SECRET || 'your_api_secret';
+
+const roomServiceClient = new RoomServiceClient(
+  livekitHost,
+  apiKey,
+  apiSecret
+);
+
+export const startLiveSession = async (req, res) => {
+  console.log("classId", classId)
+  const { classId } = req.params;
+ 
+
+  try {
+    // Create a room for the class to start the live session
+    const room = await roomServiceClient.createRoom({
+      name: `class-${classId}`,
+      emptyTimeout: 30,  // Optional: Set the timeout for empty rooms
+      maxParticipants: 100,  // Optional: Set the max number of participants
+    });
+
+    res.json({
+      success: true,
+      message: 'Live session started successfully',
+      roomName: room.name,
+    });
+  } catch (error) {
+    console.error('Error starting live session:', error);
+    res.status(500).json({
+      error: 'Failed to start live session: ' + error.message,
+    });
+  }
+};
+
+

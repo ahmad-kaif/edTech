@@ -12,6 +12,7 @@ import {
   FiStar,
   FiTrash2,
   FiLogOut,
+  FiVideo
 } from "react-icons/fi";
 import toast from "react-hot-toast";
 
@@ -22,6 +23,7 @@ export default function ClassDetails() {
   const [classData, setClassData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [discussions, setDiscussions] = useState([]);
+  const [discussionInput, setDiscussionInput] = useState("");
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [isMentor, setIsMentor] = useState(false);
   const [rating, setRating] = useState(0);
@@ -42,7 +44,7 @@ export default function ClassDetails() {
         try {
           const discussionsRes = await api.get(`/discussions?classId=${id}`);
           setDiscussions(discussionsRes.data || []);
-        } catch (discussionError) {
+        } catch {
           setDiscussions([]);
         }
       } catch (error) {
@@ -61,19 +63,6 @@ export default function ClassDetails() {
     }
   }, [id, currentUser?._id]);
 
-  const startDiscussion = async () => {
-    try {
-      // Call the backend API to create a discussion or perform the desired action
-      const response = await api.post(`/discussions/start`, { classId: id });
-      setDiscussions([...discussions, response.data]); // Add the new discussion to the state
-      toast.success("Discussion started successfully!");
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Failed to start discussion"
-      );
-    }
-  };
-
   const handleEnroll = async () => {
     try {
       await api.post(`/classes/${id}/enroll`);
@@ -87,9 +76,7 @@ export default function ClassDetails() {
   };
 
   const handleUnenroll = async () => {
-    if (!window.confirm("Are you sure you want to unenroll from this class?"))
-      return;
-
+    if (!window.confirm("Are you sure you want to unenroll from this class?")) return;
     try {
       await api.post(`/classes/${id}/unenroll`);
       setIsEnrolled(false);
@@ -102,19 +89,34 @@ export default function ClassDetails() {
   };
 
   const handleDelete = async () => {
-    if (
-      !window.confirm(
-        "Are you sure you want to delete this class? This action cannot be undone."
-      )
-    )
-      return;
-
+    if (!window.confirm("Are you sure you want to delete this class? This action cannot be undone.")) return;
     try {
       await api.delete(`/classes/${id}`);
       toast.success("Class deleted successfully");
       navigate("/classes");
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to delete class");
+    }
+  };
+
+  const handleDiscussionSubmit = async (e) => {
+    e.preventDefault();
+    if (!discussionInput.trim()) return;
+
+    try {
+      const newDiscussion = {
+        classId: id,
+        userId: currentUser._id,
+        comment: discussionInput,
+      };
+      const res = await api.post("/discussions", newDiscussion);
+      setDiscussions([...discussions, res.data]);
+      setDiscussionInput("");
+      toast.success("Comment posted successfully!");
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Failed to post discussion comment"
+      );
     }
   };
 
@@ -132,22 +134,9 @@ export default function ClassDetails() {
     }
   };
 
-  const startLiveSession = async () => {
-    try {
-      await api.post(`/classes/${id}/start-live-session`);
-      toast.success("Live session has started!");
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Failed to start the live session"
-      );
-    }
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center relative">
-        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-        <div className="absolute inset-0 bg-gradient-radial from-blue-500/20 to-transparent"></div>
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400"></div>
       </div>
     );
@@ -155,97 +144,88 @@ export default function ClassDetails() {
 
   if (!classData) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center relative">
-        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-        <div className="absolute inset-0 bg-gradient-radial from-blue-500/20 to-transparent"></div>
-        <div className="text-center relative z-10">
-          <h2 className="text-2xl font-bold text-white tracking-wide">
-            Class not found
-          </h2>
-          <Link
-            to="/classes"
-            className="text-blue-400 hover:text-blue-300 mt-4 inline-block font-medium tracking-wide"
-          >
-            Return to Classes
-          </Link>
-        </div>
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <h2 className="text-2xl font-bold text-white">Class not found</h2>
+        <Link to="/classes" className="text-blue-400 ml-4">Return to Classes</Link>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black text-white py-12 relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-      <div className="absolute inset-0 bg-gradient-radial from-blue-500/20 to-transparent"></div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Class Header */}
+    <div className="min-h-screen bg-black text-white py-12 relative">
+      {/* Class Header */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
-          className="rounded-xl p-8 mb-8 bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-blue-500/20"
+          className="rounded-xl p-8 mb-8 bg-white/5 backdrop-blur-sm border border-white/10"
         >
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 mb-4 tracking-wide">
+              <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 mb-4">
                 {classData.title}
               </h1>
-              <p className="text-lg text-gray-300 mb-6">
-                {classData.description}
-              </p>
+              <p className="text-lg text-gray-300 mb-6">{classData.description}</p>
               <div className="flex items-center space-x-6 text-gray-300">
                 <div className="flex items-center">
                   <FiUsers className="h-5 w-5 mr-2" />
-                  <span>
-                    {classData.enrolledStudents?.length || 0} Students
-                  </span>
+                  <span>{classData.enrolledStudents?.length || 0} Students</span>
                 </div>
                 <div className="flex items-center">
                   <FiCalendar className="h-5 w-5 mr-2" />
                   <span>{classData.schedule || "Schedule TBD"}</span>
                 </div>
-                {classData.maxStudents && (
-                  <div className="flex items-center">
-                    <FiUsers className="h-5 w-5 mr-2" />
-                    <span>Max {classData.maxStudents} students</span>
-                  </div>
-                )}
               </div>
             </div>
-            <div className="flex space-x-4">
+
+            {/* ACTION BUTTONS */}
+            <div className="flex flex-col space-y-4">
               {!isEnrolled && currentUser && (
                 <button
                   onClick={handleEnroll}
-                  className="px-6 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium tracking-wide shadow-lg shadow-blue-500/30 transition-all flex items-center"
+                  className="px-6 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium flex items-center"
                 >
                   <FiUsers className="mr-2" />
-                  Enroll Nowc
+                  Enroll Now
                 </button>
               )}
+
+              {/* Student: Enrolled */}
               {isEnrolled && !isMentor && (
-                <button
-                  onClick={handleUnenroll}
-                  className="px-6 py-3 rounded-lg bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-medium tracking-wide shadow-lg shadow-red-500/30 transition-all flex items-center"
-                >
-                  <FiLogOut className="mr-2" />
-                  Unenroll
-                </button>
+                <>
+                  <button
+                    onClick={() => window.open("http://localhost:3001", "_blank")}
+                    className="px-6 py-3 rounded-lg bg-gradient-to-r from-green-600 to-teal-600 text-white font-medium flex items-center"
+                  >
+                    <FiVideo className="mr-2" />
+                    Join Live Session
+                  </button>
+                  <button
+                    onClick={handleUnenroll}
+                    className="px-6 py-3 rounded-lg bg-gradient-to-r from-red-600 to-pink-600 text-white font-medium flex items-center"
+                  >
+                    <FiLogOut className="mr-2" />
+                    Unenroll
+                  </button>
+                </>
               )}
+
+              {/* Mentor */}
               {isMentor && (
                 <button
-                  onClick={startLiveSession}
-                  className="px-6 py-3 rounded-lg bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white font-medium tracking-wide shadow-lg shadow-green-500/30 transition-all flex items-center"
+                  onClick={() => window.open("http://localhost:3001", "_blank")}
+                  className="px-6 py-3 rounded-lg bg-gradient-to-r from-green-600 to-teal-600 text-white font-medium flex items-center"
                 >
                   <FiClock className="mr-2" />
                   Start Live Session
                 </button>
               )}
+
               {(isMentor || currentUser?.role === "admin") && (
                 <button
                   onClick={handleDelete}
-                  className="px-6 py-3 rounded-lg bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-medium tracking-wide shadow-lg shadow-red-500/30 transition-all flex items-center"
+                  className="px-6 py-3 rounded-lg bg-gradient-to-r from-red-600 to-pink-600 text-white font-medium flex items-center"
                 >
                   <FiTrash2 className="mr-2" />
                   Delete Class
@@ -255,134 +235,84 @@ export default function ClassDetails() {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Course Content */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 1 }}
-              className="rounded-xl p-8 bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-blue-500/20"
-            >
-              <h2 className="text-2xl font-bold text-white mb-6 tracking-wide">
-                Course Content
-              </h2>
-              <div className="space-y-4">
-                <div className="p-4 rounded-lg bg-white/10">
-                  <div className="flex items-start space-x-4">
-                    <FiBook className="h-5 w-5 mt-1 text-blue-400" />
-                    <div>
-                      <h3 className="font-semibold text-white">Content Type</h3>
-                      <p className="text-gray-300">
-                        {classData.contentType === "live"
-                          ? "Live Sessions"
-                          : "Pre-recorded Videos"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+        {/* Discussions */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="space-y-8"
+        >
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+            <h2 className="text-2xl font-bold mb-6 flex items-center">
+              <FiMessageSquare className="mr-3" /> Class Discussions
+            </h2>
 
-            {/* Rating Section */}
-            {isEnrolled && !submittedRating && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 1 }}
-                className="rounded-xl p-8 bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-blue-500/20"
-              >
-                <h2 className="text-2xl font-bold text-white mb-6 tracking-wide">
-                  Rate the Course
-                </h2>
-                <div className="flex space-x-4 items-center">
-                  {[1, 2, 3, 4, 5].map((value) => (
-                    <button
-                      key={value}
-                      onClick={() => setRating(value)}
-                      className={`text-${
-                        value <= rating ? "yellow" : "gray"
-                      }-400`}
-                    >
-                      ★
-                    </button>
-                  ))}
+            {discussions.length > 0 ? (
+              discussions.map((discussion) => (
+                <div key={discussion._id} className="mb-6 border-b border-gray-800 pb-4">
+                  <div className="flex items-center mb-2 text-sm text-gray-400">
+                    {discussion.userId?.name || "Unknown User"}
+                  </div>
+                  <p className="text-gray-300">{discussion.comment}</p>
                 </div>
-                <button
-                  onClick={handleRatingSubmit}
-                  className="mt-4 px-6 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium tracking-wide shadow-lg shadow-blue-500/30 transition-all"
-                >
-                  Submit Rating
-                </button>
-              </motion.div>
+              ))
+            ) : (
+              <p className="text-gray-400">No discussions yet. Be the first to comment!</p>
             )}
 
-            {/* Discussions */}
-            {/* Discussions */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 1 }}
-              className="rounded-xl p-8 bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-blue-500/20"
-            >
-              <h2 className="text-2xl font-bold text-white mb-6 tracking-wide">
-                Class Discussions
+            <form onSubmit={handleDiscussionSubmit} className="mt-6 flex">
+              <input
+                type="text"
+                value={discussionInput}
+                onChange={(e) => setDiscussionInput(e.target.value)}
+                placeholder="Add a comment..."
+                className="flex-1 px-4 py-3 rounded-l-lg bg-white/10 text-white placeholder-gray-400 focus:outline-none"
+              />
+              <button
+                type="submit"
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-r-lg text-white font-medium"
+              >
+                Post
+              </button>
+            </form>
+          </div>
+
+          {/* Rating */}
+          {!isMentor && (
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+              <h2 className="text-2xl font-bold mb-6 flex items-center">
+                <FiStar className="mr-3" /> Rate this Class
               </h2>
 
-              {/* Check if the user is enrolled before showing the start discussion button */}
-              {isEnrolled && (
-                <button
-                  onClick={() => startDiscussion()}
-                  className="mb-6 px-6 py-3 rounded-lg bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white font-medium tracking-wide shadow-lg shadow-green-500/30 transition-all"
-                >
-                  Start Discussion
-                </button>
-              )}
-
-              {discussions.length === 0 ? (
-                <p className="text-white">
-                  No discussions yet. Be the first to start one!
-                </p>
+              {!submittedRating ? (
+                <>
+                  <div className="flex items-center mb-6">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        onClick={() => setRating(star)}
+                        type="button"
+                        className={`text-3xl ${
+                          rating >= star ? "text-yellow-400" : "text-gray-400"
+                        }`}
+                      >
+                        ★
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    onClick={handleRatingSubmit}
+                    className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg text-white font-medium"
+                  >
+                    Submit Rating
+                  </button>
+                </>
               ) : (
-                <ul className="space-y-4">
-                  {discussions.map((discussion) => (
-                    <li key={discussion._id} className="text-white">
-                      <strong>{discussion.title}</strong>: {discussion.content}
-                    </li>
-                  ))}
-                </ul>
+                <p className="text-green-400">Thank you for your feedback!</p>
               )}
-            </motion.div>
-          </div>
-
-          {/* Mentor's Info */}
-          <div className="lg:col-span-1">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 1 }}
-              className="rounded-xl p-8 bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-blue-500/20"
-            >
-              <h2 className="text-2xl font-bold text-white mb-6 tracking-wide">
-                Mentor Information
-              </h2>
-              <div className="flex items-center space-x-4">
-                <img
-                  src={classData.mentor.avatar}
-                  alt={classData.mentor.name}
-                  className="h-16 w-16 rounded-full object-cover"
-                />
-                <div>
-                  <h3 className="font-semibold text-white">
-                    {classData.mentor.name}
-                  </h3>
-                  <p className="text-gray-300">{classData.mentor.bio}</p>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
+            </div>
+          )}
+        </motion.div>
       </div>
     </div>
   );

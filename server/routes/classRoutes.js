@@ -1,5 +1,5 @@
 import express from 'express';
-import { createClass, getClasses, getClassById, updateClass, deleteClass, enrollInClass, getEnrolledClasses, getCreatedClasses, unenrollFromClass, rateClass, checkEnrollment } from '../controllers/classController.js';
+import { createClass, getClasses, getClassById, updateClass, deleteClass, enrollInClass, getEnrolledClasses, getCreatedClasses, unenrollFromClass, rateClass, checkEnrollment, startLiveSession } from '../controllers/classController.js';
 import { protect, isMentor, isVerified } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -24,6 +24,10 @@ router.post('/:id/enroll', protect, enrollInClass);
 router.get('/:id/enrollment', protect, checkEnrollment);
 
 router.post('/:id/unenroll', protect, unenrollFromClass);
+
+// Define the route for starting the live session
+router.post('/:id/start-live-session', startLiveSession);
+
 
 
 
